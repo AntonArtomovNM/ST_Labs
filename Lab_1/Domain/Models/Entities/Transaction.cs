@@ -5,9 +5,6 @@ namespace Domain.Models.Entities;
 
 public class Transaction : Entity
 {
-    public event EventHandler<string>? TransactionCompletedEvent;
-    public event EventHandler<string>? TransactionFailedEvent;
-
     public Account? AccountFrom { get; }
 
     public Account? AccountTo { get; }
@@ -129,7 +126,7 @@ public class Transaction : Entity
             $"Internal transfer from {accountFrom.CardNumber} to {accountTo.CardNumber}");
     }
 
-    public void Execute()
+    public bool Execute()
     {
         if (ExecutedAtUtc.HasValue)
         {
@@ -146,14 +143,17 @@ public class Transaction : Entity
         }
         catch (ValidationException ex)
         {
-            OnFail(ex.Message);
-            return;
+            Fail(ex.Message);
+
+            return false;
         }
 
-        OnCompletion();
+        Complete();
+
+        return true;
     }
 
-    private void OnCompletion()
+    private void Complete()
     {
         AccountFrom?.SaveBalanceChange();
         AtmFrom?.SaveBalanceChange();
@@ -162,11 +162,9 @@ public class Transaction : Entity
 
         ExecutedAtUtc = DateTime.UtcNow;
         Status = TransactionStatus.Completed;
-
-        TransactionCompletedEvent?.Invoke(this, "Transaction executed successfully");
     }
 
-    private void OnFail(string error)
+    private void Fail(string error)
     {
         AccountFrom?.CancelBalanceChange();
         AtmFrom?.CancelBalanceChange();
@@ -176,7 +174,5 @@ public class Transaction : Entity
         ExecutedAtUtc = DateTime.UtcNow;
         Status = TransactionStatus.Failed;
         FailReason = error;
-
-        TransactionFailedEvent?.Invoke(this, $"Transaction execution failed with error message: {error}");
     }
 }

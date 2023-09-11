@@ -2,6 +2,7 @@
 using Domain.Models.Exceptions;
 
 namespace Domain.Models.ValueObjects;
+
 public record struct CardNumber
 {
     private const string CardNumberRegex = @"^[0-9]{13,19}$";

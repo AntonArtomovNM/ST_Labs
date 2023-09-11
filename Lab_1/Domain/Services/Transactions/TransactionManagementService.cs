@@ -52,31 +52,22 @@ public class TransactionManagementService : ITransactionManagementService
             return;
         }
 
-        Transaction? transaction = null;
+        Transaction transaction;
 
         try
         {
             transaction = Transaction.CreateDeposit(account, atm, amount);
 
-            transaction.TransactionCompletedEvent += OnDepositTransactionCompletedEvent;
-            transaction.TransactionFailedEvent += OnDepositTransactionFailedEvent;
+            _transactionRepository.Create(transaction);
 
-            transaction.Execute();
+        }
+        catch (ValidationException ex)
+        {
+            DepositTransactionFailedEvent?.Invoke(this, ex.Message);
+            return;
+        }
 
-            transaction.TransactionCompletedEvent -= OnDepositTransactionCompletedEvent;
-            transaction.TransactionFailedEvent -= OnDepositTransactionFailedEvent;
-        }
-        catch (Exception ex)
-        {
-            DepositTransactionFailedEvent?.Invoke(this, $"Something went wrong during transaction execution: {ex.Message}");
-        }
-        finally
-        {
-            if (transaction is not null)
-            {
-                _transactionRepository.Create(transaction);
-            }
-        }
+        ExecuteTransaction(transaction, DepositTransactionCompletedEvent, DepositTransactionFailedEvent);
     }
 
     public void CreateWithdrawalTransaction(CardNumber cardNumber, Guid atmId, decimal amount)
@@ -97,31 +88,22 @@ public class TransactionManagementService : ITransactionManagementService
             return;
         }
 
-        Transaction? transaction = null;
+        Transaction transaction;
 
         try
         {
             transaction = Transaction.CreateWithdrawal(account, atm, amount);
 
-            transaction.TransactionCompletedEvent += OnWithdrawalTransactionCompletedEvent;
-            transaction.TransactionFailedEvent += OnWithdrawalTransactionFailedEvent;
+            _transactionRepository.Create(transaction);
 
-            transaction.Execute();
+        }
+        catch (ValidationException ex)
+        {
+            WithdrawalTransactionFailedEvent?.Invoke(this, ex.Message);
+            return;
+        }
 
-            transaction.TransactionCompletedEvent -= OnWithdrawalTransactionCompletedEvent;
-            transaction.TransactionFailedEvent -= OnWithdrawalTransactionFailedEvent;
-        }
-        catch (Exception ex)
-        {
-            WithdrawalTransactionFailedEvent?.Invoke(this, $"Something went wrong during transaction execution: {ex.Message}");
-        }
-        finally
-        {
-            if (transaction is not null)
-            {
-                _transactionRepository.Create(transaction);
-            }
-        }
+        ExecuteTransaction(transaction, WithdrawalTransactionCompletedEvent, WithdrawalTransactionFailedEvent);
     }
 
     public void CreateInternalTransaction(CardNumber cardNumberFrom, CardNumber cardNumberTo, decimal amount)
@@ -142,31 +124,22 @@ public class TransactionManagementService : ITransactionManagementService
             return;
         }
 
-        Transaction? transaction = null;
+        Transaction transaction;
 
         try
         {
             transaction = Transaction.CreateInternal(accountFrom, accountTo, amount);
 
-            transaction.TransactionCompletedEvent += OnInternalTransactionCompletedEvent;
-            transaction.TransactionFailedEvent += OnInternalTransactionFailedEvent;
+            _transactionRepository.Create(transaction);
 
-            transaction.Execute();
-
-            transaction.TransactionCompletedEvent -= OnInternalTransactionCompletedEvent;
-            transaction.TransactionFailedEvent -= OnInternalTransactionFailedEvent;
         }
         catch (ValidationException ex)
         {
             InternalTransactionFailedEvent?.Invoke(this, ex.Message);
+            return;
         }
-        finally
-        {
-            if (transaction is not null)
-            {
-                _transactionRepository.Create(transaction);
-            }
-        }
+
+        ExecuteTransaction(transaction, InternalTransactionCompletedEvent, InternalTransactionFailedEvent);
     }
 
     public List<Transaction> GetTransactionsForAccountWithTimeRange(CardNumber cardNumber, TimeRangeOption timeRange)
@@ -181,33 +154,17 @@ public class TransactionManagementService : ITransactionManagementService
         return _transactionRepository.GetByAccountIdWithinTimeRange(account.Id, timeRange);
     }
 
-    private void OnDepositTransactionCompletedEvent(object? _, string e)
+    private void ExecuteTransaction(Transaction transaction, EventHandler<string>? onSuccess, EventHandler<string>? onFail)
     {
-        DepositTransactionCompletedEvent?.Invoke(this, e);
-    }
+        bool isExecutedSuccessfully = transaction.Execute();
 
-    private void OnDepositTransactionFailedEvent(object? _, string e)
-    {
-        DepositTransactionCompletedEvent?.Invoke(this, e);
-    }
-
-    private void OnWithdrawalTransactionCompletedEvent(object? _, string e)
-    {
-        WithdrawalTransactionCompletedEvent?.Invoke(this, e);
-    }
-
-    private void OnWithdrawalTransactionFailedEvent(object? _, string e)
-    {
-        WithdrawalTransactionCompletedEvent?.Invoke(this, e);
-    }
-
-    private void OnInternalTransactionCompletedEvent(object? _, string e)
-    {
-        InternalTransactionCompletedEvent?.Invoke(this, e);
-    }
-
-    private void OnInternalTransactionFailedEvent(object? _, string e)
-    {
-        InternalTransactionCompletedEvent?.Invoke(this, e);
+        if (isExecutedSuccessfully)
+        {
+            onSuccess?.Invoke(this, "Transaction executed successfully");
+        }
+        else
+        {
+            onFail?.Invoke(this, $"Transaction execution failed with error message: {transaction.FailReason}");
+        }
     }
 }
