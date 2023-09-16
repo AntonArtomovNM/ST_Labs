@@ -12,7 +12,7 @@ public abstract class BalanceEntity : Entity
     {
         if (CurrentBalance != AvailableBalance)
         {
-            throw new ValidationException($"{GetType().Name} balance operation is already in progress for this");
+            throw new ValidationException($"{GetType().Name} balance operation is already in progress");
         }
 
         AvailableBalance += amount;

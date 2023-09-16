@@ -7,5 +7,5 @@ public interface IAtmRepository
 {
     AutomatedTellerMachine? GetById(Guid id);
 
-    List<AutomatedTellerMachine> GetClosestByAddress(Address address);
+    AutomatedTellerMachine? GetClosestByCoordinates(Coordinates coordinates);
 }

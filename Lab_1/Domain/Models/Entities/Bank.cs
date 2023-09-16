@@ -29,16 +29,16 @@ public class Bank : Entity
         string firstName,
         string lastName)
     {
-        var account = new Account(cardNumber, pincode, firstName, lastName, Id);
+        var account = new Account(Id, cardNumber, pincode, firstName, lastName);
 
         _accounts.Add(account);
 
         return account;
     }
 
-    public AutomatedTellerMachine OpenAtm(Address address)
+    public AutomatedTellerMachine OpenAtm(Coordinates coordinates)
     {
-        var atm = new AutomatedTellerMachine(address, Id);
+        var atm = new AutomatedTellerMachine(Id, coordinates);
 
         _atms.Add(atm);
 

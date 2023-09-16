@@ -1,5 +1,4 @@
-﻿using System.Security.Principal;
-using Domain.Models.Entities;
+﻿using Domain.Models.Entities;
 using Domain.Models.Enums;
 using Domain.Models.Exceptions;
 using Domain.Models.ValueObjects;

@@ -15,11 +15,11 @@ public class Account : BalanceEntity
     public string LastName { get; }
 
     public Account(
+        Guid bankId,
         CardNumber cardNumber,
         Pincode pincode,
         string firstName,
-        string lastName,
-        Guid bankId)
+        string lastName)
     {
         if (string.IsNullOrWhiteSpace(firstName))
         {
@@ -31,11 +31,11 @@ public class Account : BalanceEntity
             throw new ArgumentNullException(nameof(lastName));
         }
 
+        BankId = bankId;
         CardNumber = cardNumber;
         Pincode = pincode;
         FirstName = firstName;
         LastName = lastName;
-        BankId = bankId;
     }
 
     public bool Authenticate(Pincode pincode)

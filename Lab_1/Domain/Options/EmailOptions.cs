@@ -2,7 +2,6 @@
 
 public static class EmailOptions
 {
-
     public const string EmailAddress = "";
 
     public const string Password = "";

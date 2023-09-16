@@ -10,5 +10,5 @@ public interface IAtmManagementService
 
     decimal? GetAtmBalance(Guid atmId);
 
-    List<AutomatedTellerMachine> GetClosestAtmsByAddress(Address address);
+    AutomatedTellerMachine? GetClosestAtmByCoordinates(Coordinates coordinates);
 }

@@ -6,18 +6,14 @@ public class AutomatedTellerMachine : BalanceEntity
 {
     public Guid BankId { get; }
 
-    public Address Address { get; }
+    public Coordinates Coordinates { get; }
 
     public AutomatedTellerMachine(
-        Address address,
-        Guid bankId)
-    {
-        if (address is null)
-        {
-            throw new ArgumentNullException(nameof(address));
-        }
+        Guid bankId,
+        Coordinates coordinates)
 
-        Address = address;
+    {
         BankId = bankId;
+        Coordinates = coordinates;
     }
 }

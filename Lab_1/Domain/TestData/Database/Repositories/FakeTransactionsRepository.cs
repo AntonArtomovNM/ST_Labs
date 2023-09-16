@@ -12,7 +12,7 @@ public class FakeTransactionsRepository : ITransactionRepository
 
     public List<Transaction> GetByAccountIdWithinTimeRange(Guid accountId, TimeRangeOption timeRange)
     {
-        var accountTransactions = FakeDatabase.Transactions
+        IEnumerable<Transaction> accountTransactions = FakeDatabase.Transactions
             .Where(t => t.AccountFrom?.Id == accountId || t.AccountTo?.Id == accountId)
             .OrderByDescending(t => t.ExecutedAtUtc);
 

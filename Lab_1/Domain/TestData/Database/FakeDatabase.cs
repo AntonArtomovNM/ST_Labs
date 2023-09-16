@@ -27,13 +27,13 @@ public static class FakeDatabase
             "Jane",
             "Doe");
 
-        var atm1 = bank1.OpenAtm(new Address("1 Green Street", "", "Lviv", "Lviv Oblast", "UA"));
+        var atm1 = bank1.OpenAtm(new Coordinates(49.84149564025544, 24.03158623791239));
 
-        var atm2 = bank1.OpenAtm(new Address("4827 Stone Lane", "#110", "Philadelphia", "Pennsylvania", "US"));
+        var atm2 = bank1.OpenAtm(new Coordinates(49.844772923041894, 23.996951796605273));
 
-        var atm3 = bank1.OpenAtm(new Address("2219 Fannie Street", "#5", "Bryan", "Texas", "US"));
+        var atm3 = bank1.OpenAtm(new Coordinates(49.83589178179954, 23.999746943475298));
 
-        var atm4 = bank1.OpenAtm(new Address("25 Sumska Street", "", "Kharkiv", "Kharkiv Oblast", "UA"));
+        var atm4 = bank1.OpenAtm(new Coordinates(49.99915066097025, 36.23222726923015));
 
         Banks.Add(bank1);
         Accounts.AddRange(bank1.Accounts);
@@ -54,13 +54,13 @@ public static class FakeDatabase
             "Donna",
             "Joe");
 
-        var atm5 = bank2.OpenAtm(new Address("6 Vokzalna Street", "", "Lviv", "Lviv Oblast", "UA"));
+        var atm5 = bank2.OpenAtm(new Coordinates(49.884832, 24.087280));
 
-        var atm6 = bank2.OpenAtm(new Address("9 Skrypnyka Street", "", "Kharkiv", "Kharkiv Oblast", "UA"));
+        var atm6 = bank2.OpenAtm(new Coordinates(49.99795422232978, 36.238614473602375));
 
-        var atm7 = bank2.OpenAtm(new Address("4827 Stone Lane", "#115", "Philadelphia", "Pennsylvania", "US"));
+        var atm7 = bank2.OpenAtm(new Coordinates(50.004813208861364, 36.23222211129407));
 
-        var atm8 = bank2.OpenAtm(new Address("2219 Fannie Street", "#6", "Bryan", "Texas", "US"));
+        var atm8 = bank2.OpenAtm(new Coordinates(49.985317810149134, 36.200992486440846));
 
         Banks.Add(bank2);
         Accounts.AddRange(bank2.Accounts);

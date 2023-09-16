@@ -130,7 +130,7 @@ public class Transaction : Entity
     {
         if (ExecutedAtUtc.HasValue)
         {
-            throw new InvalidOperationException("Transaction has been already executed");
+            throw new ValidationException("Transaction has been already executed");
         }
 
         try

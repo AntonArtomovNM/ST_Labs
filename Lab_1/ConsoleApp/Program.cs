@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Text;
+﻿using System.Text;
 using Domain.Models.Entities;
 using Domain.Models.Enums;
 using Domain.Models.Exceptions;
@@ -224,64 +223,59 @@ internal class Program
     private static Guid? GetClosestAtmId()
     {
         Console.Clear();
-        
-        Console.Write("Enter your country (leave empty to skip): ");
-        string country = Console.ReadLine() ?? string.Empty;
-        
-        Console.Write("Enter your state (leave empty to skip): ");
-        string state = Console.ReadLine() ?? string.Empty;
 
-        Console.Write("Enter your city (leave empty to skip): ");
-        string city = Console.ReadLine() ?? string.Empty;
+        bool isInputValid = true;
+        int inputAttempts = 0;
+        Coordinates? userCoords = null;
 
-        Console.Write("Enter your street address part 1 (leave empty to skip): ");
-        string street1 = Console.ReadLine() ?? string.Empty;
-        
-        Console.Write("Enter your street address part 2 (leave empty to skip): ");
-        string street2 = Console.ReadLine() ?? string.Empty;
+        do
+        {
+            Console.Write("Enter your latitude (from -90  to 90): ");
+            var xInput = Console.ReadLine()
+                ?.Replace('.', ',')
+                ?? string.Empty;
+            isInputValid &= double.TryParse(xInput, out double x);
 
-        var userAddress = new Address(street1, street2, city, state, country);
+            Console.Write("Enter your longitude (from -180 to 180): ");
+            var yInput = Console.ReadLine()
+                ?.Replace('.', ',')
+                ?? string.Empty;
+            isInputValid &= double.TryParse(yInput.Replace('.', ','), out double y);
 
-        var closestAtms = _atmManagementService.GetClosestAtmsByAddress(userAddress);
+            try
+            {
+                userCoords = new Coordinates(x, y);
+            }
+            catch (ValidationException)
+            {
+                isInputValid = false;
+            }
 
-        if (!closestAtms.Any())
+            if (!isInputValid)
+            {
+                Console.WriteLine("Coordinates are invalid, please try again");
+                Console.WriteLine();
+            }
+
+            inputAttempts++;
+
+        } while(!isInputValid && inputAttempts < 5);
+
+        var closestAtm = _atmManagementService.GetClosestAtmByCoordinates(userCoords.Value);
+
+        if (closestAtm is null)
         {
             Console.WriteLine();
-            Console.WriteLine("No ATMs found near by");
+            Console.WriteLine("No ATMs found nearby");
             return null;
         }
 
         Console.Clear();
-        Console.WriteLine("Closest ATMs:");
+        Console.WriteLine("Closest ATM:");
 
-        for (var i = 0; i < closestAtms.Count; i++)
-        {
-            Console.WriteLine();
-            Console.WriteLine($"  {i + 1}. ATM #{i + 1}");
-            DisplayAtm(closestAtms[i]);
-        }
+        DisplayAtm(closestAtm);
 
-        Console.WriteLine();
-        Console.WriteLine("  0. Go back");
-        Console.WriteLine();
-        Console.Write("Enter your choice: ");
-
-        string? input = Console.ReadLine();
-        int.TryParse(input, out int option);
-
-        if (option < 1 || option > closestAtms.Count)
-        {
-            Console.WriteLine("Exiting ATMs list");
-            return null;
-        }
-
-        var chosenAtm = closestAtms[option - 1];
-
-        Console.WriteLine();
-        Console.WriteLine("Your chosen ATM:");
-        DisplayAtm(chosenAtm);
-
-        return chosenAtm.Id;
+        return closestAtm.Id;
     }
 
     private static void ProcessInternalTransfer(CardNumber cardNumberFrom)
@@ -422,16 +416,7 @@ internal class Program
 
         stringBuilder.AppendLine($"Id: {atm.Id}");
         stringBuilder.AppendLine($"Balance: {atm.CurrentBalance}");
-        stringBuilder.Append("Address: ");
-
-        atm.Address.Deconstruct(
-            out string street1,
-            out string street2,
-            out string city,
-            out string state,
-            out string country);
-
-        stringBuilder.AppendJoin(", ", street1, street2, city, state, country);
+        stringBuilder.AppendLine($"Coordinates: [{atm.Coordinates.X};{atm.Coordinates.Y}]");
 
         Console.WriteLine(stringBuilder.ToString());
     }

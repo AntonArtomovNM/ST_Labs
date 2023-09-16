@@ -33,8 +33,8 @@ public class AtmManagementService : IAtmManagementService
         return balance;
     }
 
-    public List<AutomatedTellerMachine> GetClosestAtmsByAddress(Address address)
+    public AutomatedTellerMachine? GetClosestAtmByCoordinates(Coordinates coordinates)
     {
-        return _atmRepository.GetClosestByAddress(address);
+        return _atmRepository.GetClosestByCoordinates(coordinates);
     }
 }

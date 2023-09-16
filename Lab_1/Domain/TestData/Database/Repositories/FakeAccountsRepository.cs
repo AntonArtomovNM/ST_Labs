@@ -8,7 +8,7 @@ public class FakeAccountsRepository : IAccountRepository
 {
     public Account? GetByCardNumber(CardNumber cardNumber)
     {
-        var account = FakeDatabase.Accounts
+        Account? account = FakeDatabase.Accounts
             .Where(a => a.CardNumber == cardNumber)
             .SingleOrDefault();
 
