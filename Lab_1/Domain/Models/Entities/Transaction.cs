@@ -1,4 +1,5 @@
-﻿using Domain.Models.Enums;
+﻿using System.Text;
+using Domain.Models.Enums;
 using Domain.Models.Exceptions;
 
 namespace Domain.Models.Entities;
@@ -152,6 +153,52 @@ public class Transaction : Entity
 
         return true;
     }
+
+    public override string ToString()
+    {
+        var stringBuilder = new StringBuilder();
+
+        stringBuilder.Append(Purpose);
+        stringBuilder.Append($" ${Amount}");
+        stringBuilder.Append($" - {Status}");
+
+        if (!string.IsNullOrWhiteSpace(FailReason))
+        {
+            stringBuilder.Append($" ({FailReason})");
+        }
+
+        if (ExecutedAtUtc.HasValue)
+        {
+            stringBuilder.Append($" on {ExecutedAtUtc:R}");
+        }
+
+        return stringBuilder.ToString();
+    }
+
+    public string ToStringDetailed()
+    {
+        var stringBuilder = new StringBuilder();
+
+        stringBuilder.AppendLine(Purpose);
+        stringBuilder.Append('-', Purpose.Length);
+        stringBuilder.AppendLine();
+        stringBuilder.AppendLine($"Type: {Type}");
+        stringBuilder.AppendLine($"Amount: {Amount}");
+        stringBuilder.AppendLine($"Status: {Status}");
+
+        if (!string.IsNullOrWhiteSpace(FailReason))
+        {
+            stringBuilder.AppendLine($"Failed reason: \"{FailReason}\"");
+        }
+
+        if (ExecutedAtUtc.HasValue)
+        {
+            stringBuilder.AppendLine($"Executed at: {ExecutedAtUtc:R}");
+        }
+
+        return stringBuilder.ToString();
+    }
+
 
     private void Complete()
     {

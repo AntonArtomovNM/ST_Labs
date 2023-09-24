@@ -27,13 +27,13 @@ public static class FakeDatabase
             "Jane",
             "Doe");
 
-        var atm1 = bank1.OpenAtm(new Coordinates(49.84149564025544, 24.03158623791239));
+        var atm1 = bank1.OpenAtm(new Coordinates(49.84149564025544, 23.996951796605273));
 
-        var atm2 = bank1.OpenAtm(new Coordinates(49.844772923041894, 23.996951796605273));
+        var atm2 = bank1.OpenAtm(new Coordinates(49.844772923041894, 24.03158623791239));
 
-        var atm3 = bank1.OpenAtm(new Coordinates(49.83589178179954, 23.999746943475298));
+        var atm3 = bank1.OpenAtm(new Coordinates(49.99915066097025, 36.23222726923015));
 
-        var atm4 = bank1.OpenAtm(new Coordinates(49.99915066097025, 36.23222726923015));
+        var atm4 = bank1.OpenAtm(new Coordinates(49.83589178179954, 23.999746943475298));
 
         Banks.Add(bank1);
         Accounts.AddRange(bank1.Accounts);
@@ -69,12 +69,12 @@ public static class FakeDatabase
         // Create transaction history
         var transaction1 = Transaction.CreateDeposit(account1, atm1, 60m);
         transaction1.Execute();
-        transaction1.ExecutedAtUtc = DateTime.UtcNow.AddMonths(-2);
+        transaction1.ExecutedAtUtc = DateTime.UtcNow.AddMonths(-1);
         Transactions.Add(transaction1);
 
         var transaction2 = Transaction.CreateWithdrawal(account2, atm3, 70m);
         transaction2.Execute();
-        transaction2.ExecutedAtUtc = DateTime.UtcNow.AddMonths(-2);
+        transaction2.ExecutedAtUtc = DateTime.UtcNow.AddMonths(-1);
         Transactions.Add(transaction2);
 
         var transaction3 = Transaction.CreateDeposit(account3, atm5, 150m);
@@ -91,5 +91,10 @@ public static class FakeDatabase
         transaction5.Execute();
         transaction5.ExecutedAtUtc = DateTime.UtcNow.AddDays(-1);
         Transactions.Add(transaction5);
+
+        var transaction6 = Transaction.CreateDeposit(account1, atm2, 100m);
+        transaction6.Execute();
+        transaction6.ExecutedAtUtc = DateTime.UtcNow;
+        Transactions.Add(transaction6);
     }
 }

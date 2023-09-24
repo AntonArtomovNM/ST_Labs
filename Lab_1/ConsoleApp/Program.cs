@@ -1,6 +1,4 @@
-﻿using System.Text;
-using Domain.Models.Entities;
-using Domain.Models.Enums;
+﻿using Domain.Models.Enums;
 using Domain.Models.Exceptions;
 using Domain.Models.ValueObjects;
 using Domain.Services.Accounts;
@@ -216,7 +214,7 @@ internal class Program
         transactions.ForEach(t =>
         {
             Console.WriteLine();
-            DisplayTransaction(t);
+            Console.WriteLine(t.ToStringDetailed());
         });
     }
 
@@ -261,6 +259,13 @@ internal class Program
 
         } while(!isInputValid && inputAttempts < 5);
 
+        if (userCoords is null)
+        {
+            Console.WriteLine("Reached the limit on the number of retries");
+            Console.WriteLine();
+            return null;
+        }
+
         var closestAtm = _atmManagementService.GetClosestAtmByCoordinates(userCoords.Value);
 
         if (closestAtm is null)
@@ -272,8 +277,7 @@ internal class Program
 
         Console.Clear();
         Console.WriteLine("Closest ATM:");
-
-        DisplayAtm(closestAtm);
+        Console.WriteLine(closestAtm);
 
         return closestAtm.Id;
     }
@@ -289,7 +293,7 @@ internal class Program
         {
             transferAttempts++;
 
-            CardNumber cardNumberTo = default;
+            CardNumber cardNumberTo;
 
             try
             {
@@ -387,37 +391,5 @@ internal class Program
             wasTransferExecuted = true;
 
         } while (!wasTransferExecuted && transferAttempts < 5);
-    }
-
-    private static void DisplayTransaction(Transaction transaction)
-    {
-        var stringBuilder = new StringBuilder();
-
-        stringBuilder.AppendLine(transaction.Purpose);
-        stringBuilder.Append('-', transaction.Purpose.Length);
-        stringBuilder.AppendLine();
-        stringBuilder.AppendLine($"Type: {transaction.Type}");
-        stringBuilder.AppendLine($"Amount: {transaction.Amount}");
-        stringBuilder.AppendLine($"Status: {transaction.Status}");
-
-        if (!string.IsNullOrWhiteSpace(transaction.FailReason))
-        {
-            stringBuilder.AppendLine($"Failed reason: \"{transaction.FailReason}\"");
-        }
-
-        stringBuilder.AppendLine($"Executed at: {transaction.ExecutedAtUtc:R}");
-
-        Console.WriteLine(stringBuilder.ToString());
-    }
-
-    private static void DisplayAtm(AutomatedTellerMachine atm)
-    {
-        var stringBuilder = new StringBuilder();
-
-        stringBuilder.AppendLine($"Id: {atm.Id}");
-        stringBuilder.AppendLine($"Balance: {atm.CurrentBalance}");
-        stringBuilder.AppendLine($"Coordinates: [{atm.Coordinates.X};{atm.Coordinates.Y}]");
-
-        Console.WriteLine(stringBuilder.ToString());
     }
 }

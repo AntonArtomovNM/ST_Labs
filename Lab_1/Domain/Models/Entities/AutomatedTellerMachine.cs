@@ -1,4 +1,5 @@
-﻿using Domain.Models.ValueObjects;
+﻿using System.Text;
+using Domain.Models.ValueObjects;
 
 namespace Domain.Models.Entities;
 
@@ -15,5 +16,16 @@ public class AutomatedTellerMachine : BalanceEntity
     {
         BankId = bankId;
         Coordinates = coordinates;
+    }
+
+    public override string ToString()
+    {
+        var stringBuilder = new StringBuilder();
+
+        stringBuilder.AppendLine($"Id: {Id}");
+        stringBuilder.AppendLine($"Balance: {CurrentBalance}");
+        stringBuilder.AppendLine($"Coordinates: [{Coordinates.X}; {Coordinates.Y}]");
+
+        return stringBuilder.ToString();
     }
 }
