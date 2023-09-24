@@ -5,7 +5,7 @@ using Domain.TestData;
 
 namespace WinFormsApp;
 
-public partial class MainMenuForm : ExtendedForm
+public partial class MainMenuForm : ExtendedFormWithEvents
 {
     private const string UnathorizedErrorMessage = "You are not authenticated";
     private const string AtmRequiredErrorMessage = "You need to find closest ATM first";
@@ -24,6 +24,36 @@ public partial class MainMenuForm : ExtendedForm
         _atmManagementService = FakeContainer.AtmManagementService;
 
         SubscribeToEvents();
+    }
+
+    protected override void SubscribeToEvents()
+    {
+        _accountManagementService.BalanceRetrivalCompletedEvent += OnBalanceRetrivalCompleted;
+        _accountManagementService.BalanceRetrivalFailedEvent += OnBalanceRetrivalFailed;
+
+        _atmManagementService.BalanceRetrivalCompletedEvent += OnBalanceRetrivalCompleted;
+        _atmManagementService.BalanceRetrivalFailedEvent += OnBalanceRetrivalFailed;
+    }
+
+    protected override void UnsubscribeFromEvents()
+    {
+        _accountManagementService.BalanceRetrivalCompletedEvent -= OnBalanceRetrivalCompleted;
+        _accountManagementService.BalanceRetrivalFailedEvent -= OnBalanceRetrivalFailed;
+
+        _atmManagementService.BalanceRetrivalCompletedEvent -= OnBalanceRetrivalCompleted;
+        _atmManagementService.BalanceRetrivalFailedEvent -= OnBalanceRetrivalFailed;
+    }
+
+    private void OnBalanceRetrivalCompleted(object? _, string e)
+    {
+        ShowInfo(e);
+        SendEmailNotification("Balance retrived", e);
+    }
+
+    private void OnBalanceRetrivalFailed(object? _, string e)
+    {
+        ShowError(e);
+        SendEmailNotification("Balance retrival has failed", e);
     }
 
     private void MainMenuForm_Load(object? sender, EventArgs e)
@@ -145,33 +175,5 @@ public partial class MainMenuForm : ExtendedForm
 
         WithdrawalTransferButton.Enabled = true;
         WithdrawalTransferButton.Visible = true;
-    }
-
-    private void SubscribeToEvents()
-    {
-        _accountManagementService.BalanceRetrivalCompletedEvent += OnReceivedCompletedEvent;
-        _accountManagementService.BalanceRetrivalFailedEvent += OnReceivedFailedEvent;
-
-        _atmManagementService.BalanceRetrivalCompletedEvent += OnReceivedCompletedEvent;
-        _atmManagementService.BalanceRetrivalFailedEvent += OnReceivedFailedEvent;
-    }
-
-    private void UnsubscribeFromEvents()
-    {
-        _accountManagementService.BalanceRetrivalCompletedEvent -= OnReceivedCompletedEvent;
-        _accountManagementService.BalanceRetrivalFailedEvent -= OnReceivedFailedEvent;
-
-        _atmManagementService.BalanceRetrivalCompletedEvent -= OnReceivedCompletedEvent;
-        _atmManagementService.BalanceRetrivalFailedEvent -= OnReceivedFailedEvent;
-    }
-
-    private static void OnReceivedCompletedEvent(object? _, string e)
-    {
-        ShowInfo(e);
-    }
-
-    private static void OnReceivedFailedEvent(object? _, string e)
-    {
-        ShowError(e);
     }
 }

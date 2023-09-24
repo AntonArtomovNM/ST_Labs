@@ -12,7 +12,6 @@ public partial class ClosestAtmFrom : ExtendedForm
     private readonly IAtmManagementService _atmManagementService;
 
     private double _x;
-
     private double _y;
 
     public EventHandler<Guid>? ClosestAtmFoundEvent { get; set; }

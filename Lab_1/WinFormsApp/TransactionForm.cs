@@ -6,22 +6,23 @@ using Domain.TestData;
 
 namespace WinFormsApp;
 
-public partial class TransactionForm : ExtendedForm
+public partial class TransactionForm : ExtendedFormWithEvents
 {
+    private const string InvalidTransactionTypeMessage = "Invalid transaction type";
+    private const string EmptyCardNumberFromMessage = "Source card number is not set";
+    private const string EmptyCardNumberToMessage = "Destination card number is not set";
+    private const string EmptyAtmIdFromMessage = "Source ATM is not set";
+    private const string EmptyAtmIdToMessage = "Destination ATM is not set";
+
     private readonly ITransactionManagementService _transactionManagementService;
 
     private TransactionType _transactionType;
-
     private CardNumber? _cardNumberFrom;
-
     private CardNumber? _cardNumberTo;
-
     private Guid? _atmIdFrom;
-
     private Guid? _atmIdTo;
 
     private string _cardNumberToText = string.Empty;
-
     private decimal _amount = 0M;
 
     private TransactionForm(
@@ -105,6 +106,44 @@ public partial class TransactionForm : ExtendedForm
         return form;
     }
 
+    protected override void SubscribeToEvents()
+    {
+        _transactionManagementService.DepositTransactionCompletedEvent += OnTransactionCompleted;
+        _transactionManagementService.DepositTransactionFailedEvent += OnTransactionFailed;
+
+        _transactionManagementService.WithdrawalTransactionCompletedEvent += OnTransactionCompleted;
+        _transactionManagementService.WithdrawalTransactionFailedEvent += OnTransactionFailed;
+
+        _transactionManagementService.InternalTransactionCompletedEvent += OnTransactionCompleted;
+        _transactionManagementService.InternalTransactionFailedEvent += OnTransactionFailed;
+    }
+
+    protected override void UnsubscribeFromEvents()
+    {
+        _transactionManagementService.DepositTransactionCompletedEvent -= OnTransactionCompleted;
+        _transactionManagementService.DepositTransactionFailedEvent -= OnTransactionFailed;
+
+        _transactionManagementService.WithdrawalTransactionCompletedEvent -= OnTransactionCompleted;
+        _transactionManagementService.WithdrawalTransactionFailedEvent -= OnTransactionFailed;
+
+        _transactionManagementService.InternalTransactionCompletedEvent -= OnTransactionCompleted;
+        _transactionManagementService.InternalTransactionFailedEvent -= OnTransactionFailed;
+    }
+
+    private void OnTransactionCompleted(object? _, string e)
+    {
+        ShowInfo(e);
+        SendEmailNotification("Transaction completed", e);
+
+        this.Close();
+    }
+
+    private void OnTransactionFailed(object? _, string e)
+    {
+        ShowError(e);
+        SendEmailNotification("Transaction failed", e);
+    }
+
     private void TransactionForm_FormClosed(object sender, FormClosedEventArgs e)
     {
         UnsubscribeFromEvents();
@@ -137,7 +176,7 @@ public partial class TransactionForm : ExtendedForm
                 return;
 
             default:
-                ShowError("Invalid transaction type");
+                ShowError(InvalidTransactionTypeMessage);
                 return;
         }
     }
@@ -146,7 +185,7 @@ public partial class TransactionForm : ExtendedForm
     {
         if (!_cardNumberFrom.HasValue)
         {
-            ShowError("Source card number is not set");
+            ShowError(EmptyCardNumberFromMessage);
             return;
         }
 
@@ -167,13 +206,13 @@ public partial class TransactionForm : ExtendedForm
     {
         if (!_cardNumberTo.HasValue)
         {
-            ShowError("Destination card number is not set");
+            ShowError(EmptyCardNumberToMessage);
             return;
         }
 
         if (!_atmIdTo.HasValue)
         {
-            ShowError("Destination ATM is not set");
+            ShowError(EmptyAtmIdToMessage);
             return;
         }
 
@@ -184,52 +223,16 @@ public partial class TransactionForm : ExtendedForm
     {
         if (!_cardNumberFrom.HasValue)
         {
-            ShowError("Source card number is not set");
+            ShowError(EmptyCardNumberFromMessage);
             return;
         }
 
         if (!_atmIdFrom.HasValue)
         {
-            ShowError("Source ATM is not set");
+            ShowError(EmptyAtmIdFromMessage);
             return;
         }
 
         _transactionManagementService.CreateWithdrawalTransaction(_cardNumberFrom.Value, _atmIdFrom.Value, _amount);
-    }
-
-    private void SubscribeToEvents()
-    {
-        _transactionManagementService.DepositTransactionCompletedEvent += OnTransactionCompleted;
-        _transactionManagementService.DepositTransactionFailedEvent += OnTransactionFailed;
-
-        _transactionManagementService.WithdrawalTransactionCompletedEvent += OnTransactionCompleted;
-        _transactionManagementService.WithdrawalTransactionFailedEvent += OnTransactionFailed;
-
-        _transactionManagementService.InternalTransactionCompletedEvent += OnTransactionCompleted;
-        _transactionManagementService.InternalTransactionFailedEvent += OnTransactionFailed;
-    }
-
-    private void UnsubscribeFromEvents()
-    {
-        _transactionManagementService.DepositTransactionCompletedEvent -= OnTransactionCompleted;
-        _transactionManagementService.DepositTransactionFailedEvent -= OnTransactionFailed;
-
-        _transactionManagementService.WithdrawalTransactionCompletedEvent -= OnTransactionCompleted;
-        _transactionManagementService.WithdrawalTransactionFailedEvent -= OnTransactionFailed;
-
-        _transactionManagementService.InternalTransactionCompletedEvent -= OnTransactionCompleted;
-        _transactionManagementService.InternalTransactionFailedEvent -= OnTransactionFailed;
-    }
-
-    private void OnTransactionCompleted(object? _, string e)
-    {
-        ShowInfo(e);
-
-        this.Close();
-    }
-
-    private void OnTransactionFailed(object? _, string e)
-    {
-        ShowError(e);
     }
 }

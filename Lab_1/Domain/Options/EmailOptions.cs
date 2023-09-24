@@ -2,9 +2,13 @@
 
 public static class EmailOptions
 {
-    public const string EmailAddress = "";
+    public const bool IsEmailSendingEnabled = false;
 
-    public const string Password = "";
+    public const string ReceiverEmailAddress = "";
+
+    public const string SenderEmailAddress = "";
+
+    public const string SenderPassword = "";
 
     public static class Smtp
     {

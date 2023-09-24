@@ -1,8 +1,10 @@
 ﻿using Domain.Models.Enums;
 using Domain.Models.Exceptions;
 using Domain.Models.ValueObjects;
+using Domain.Options;
 using Domain.Services.Accounts;
 using Domain.Services.ATMs;
+using Domain.Services.EmailSending;
 using Domain.Services.Transactions;
 using Domain.TestData;
 
@@ -11,6 +13,8 @@ internal class Program
     private static readonly IAccountManagementService _accountManagementService = FakeContainer.AccountManagementService;
     private static readonly IAtmManagementService _atmManagementService = FakeContainer.AtmManagementService;
     private static readonly ITransactionManagementService _transactionManagementService = FakeContainer.TransactionManagementService;
+
+    private static readonly IEmailSendingService _emailSendingService = FakeContainer.EmailSendingService;
 
     private static void Main()
     {
@@ -42,6 +46,13 @@ internal class Program
         static void OnReceivedEvent(object? _, string e)
         {
             Console.WriteLine(e);
+
+            if (EmailOptions.IsEmailSendingEnabled)
+            {
+                var emailMessage = new EmailMessage("[Lab1 - Console] Notification received", e);
+
+                _emailSendingService.SendEmail(emailMessage);
+            }
         }
     }
 

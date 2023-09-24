@@ -1,6 +1,6 @@
 ﻿namespace WinFormsApp;
 
-public class ExtendedForm : Form
+public abstract class ExtendedForm : Form
 {
     protected static DialogResult ConfirmAction(string action, string text)
     {

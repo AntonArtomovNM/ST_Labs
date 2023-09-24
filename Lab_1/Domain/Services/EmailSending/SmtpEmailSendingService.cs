@@ -15,7 +15,7 @@ public class SmtpEmailSendingService : IEmailSendingService
         {
             Port = 587,
             UseDefaultCredentials = false,
-            Credentials = new NetworkCredential(EmailOptions.EmailAddress, EmailOptions.Password),
+            Credentials = new NetworkCredential(EmailOptions.SenderEmailAddress, EmailOptions.SenderPassword),
             EnableSsl = true,
             DeliveryMethod = SmtpDeliveryMethod.Network
         };
@@ -23,7 +23,7 @@ public class SmtpEmailSendingService : IEmailSendingService
 
     public void SendEmail(EmailMessage email)
     {
-        var mailMessage = new MailMessage(email.SenderEmailAddress, email.ReceiverEmailAddress, email.Title, email.Body);
+        var mailMessage = new MailMessage(EmailOptions.SenderEmailAddress, EmailOptions.ReceiverEmailAddress, email.Title, email.Body);
 
         _smtpClient.Send(mailMessage);
     }

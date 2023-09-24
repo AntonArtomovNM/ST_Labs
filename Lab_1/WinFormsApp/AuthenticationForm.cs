@@ -5,12 +5,11 @@ using Domain.TestData;
 
 namespace WinFormsApp;
 
-public partial class AuthenticationForm : ExtendedForm
+public partial class AuthenticationForm : ExtendedFormWithEvents
 {
     private readonly IAccountManagementService _accountManagementService;
 
     private string _cardNumberText = string.Empty;
-
     private string _pincodeText = string.Empty;
 
     public EventHandler<CardNumber>? AuthenticationCompletedEvent { get; set; }
@@ -22,6 +21,36 @@ public partial class AuthenticationForm : ExtendedForm
         _accountManagementService = FakeContainer.AccountManagementService;
 
         SubscribeToEvents();
+    }
+
+    protected override void SubscribeToEvents()
+    {
+        _accountManagementService.AuthenticationCompletedEvent += OnAuthenticationCompleted;
+        _accountManagementService.AuthenticationFailedEvent += OnAuthenticationFailed;
+    }
+
+    protected override void UnsubscribeFromEvents()
+    {
+        _accountManagementService.AuthenticationCompletedEvent -= OnAuthenticationCompleted;
+        _accountManagementService.AuthenticationFailedEvent -= OnAuthenticationFailed;
+    }
+
+    private void OnAuthenticationCompleted(object? _, string e)
+    {
+        var cardNumber = new CardNumber(_cardNumberText);
+
+        ShowInfo(e);
+        SendEmailNotification("Authentication has happened", e);
+
+        AuthenticationCompletedEvent?.Invoke(this, cardNumber);
+
+        this.Close();
+    }
+
+    private void OnAuthenticationFailed(object? _, string e)
+    {
+        ShowError(e);
+        SendEmailNotification("Authentication attempt has failed", e);
     }
 
     private void AuthenticationForm_FormClosed(object sender, FormClosedEventArgs e)
@@ -56,33 +85,5 @@ public partial class AuthenticationForm : ExtendedForm
         }
 
         _accountManagementService.AuthenticateAccount(cardNumber, pincode);
-    }
-
-    private void SubscribeToEvents()
-    {
-        _accountManagementService.AuthenticationCompletedEvent += OnAuthenticationCompleted;
-        _accountManagementService.AuthenticationFailedEvent += OnAuthenticationFailed;
-    }
-
-    private void UnsubscribeFromEvents()
-    {
-        _accountManagementService.AuthenticationCompletedEvent -= OnAuthenticationCompleted;
-        _accountManagementService.AuthenticationFailedEvent -= OnAuthenticationFailed;
-    }
-
-    private void OnAuthenticationCompleted(object? _, string e)
-    {
-        var cardNumber = new CardNumber(_cardNumberText);
-
-        ShowInfo(e);
-
-        AuthenticationCompletedEvent?.Invoke(this, cardNumber);
-
-        this.Close();
-    }
-
-    private void OnAuthenticationFailed(object? _, string e)
-    {
-        ShowError(e);
     }
 }
