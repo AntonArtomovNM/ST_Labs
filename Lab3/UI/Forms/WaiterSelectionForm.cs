@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UI.Components;
+﻿using UI.Components;
 using UI.Forms.Contracts;
 using UI.Models;
 using UI.Services.Customers;

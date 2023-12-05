@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using UI.Components;
+﻿using UI.Components;
 using UI.Models;
 using UI.Services.Waiters;
 using UI.Utils;
